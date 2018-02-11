@@ -1225,11 +1225,11 @@ int parameter_recover(void)
     parameter.recodetime = 60;  // 60sec
 
 #ifdef CVR
-    parameter.video_audioenable = 0;
+    parameter.video_audioenable = 1;
 #ifdef _PCBA_SERVICE_
     parameter.video_autorec = 0;
 #else
-    parameter.video_autorec = 1;
+    parameter.video_autorec = 0;
 #endif
     parameter.video_idc = 1;
     parameter.video_3dnr = 1;
@@ -1262,7 +1262,7 @@ int parameter_recover(void)
 
     parameter.cif_reso.width = 720;
     parameter.cif_reso.height = 576;
-    parameter.cif_reso.fps = 25;
+    parameter.cif_reso.fps = 30;
     parameter.video_cifcamera = 0;
 
     parameter.back_reso.width = 640;
@@ -1311,9 +1311,9 @@ int parameter_recover(void)
     parameter.front_resos_max = _MAX_FRONT_VIDEO_RES;
 
     parameter.photo_burst_num = 3;
-    parameter.photo_param.width = 1920;
-    parameter.photo_param.height = 1080;
-    parameter.photo_param.max_num = 5;
+    parameter.photo_param.width = 1280;
+    parameter.photo_param.height = 720;
+    parameter.photo_param.max_num = 7;
 
     parameter.photo_resos_ptr = get_photo_resolutions();
     parameter.photo_resos_max = _MAX_PHO_RES;

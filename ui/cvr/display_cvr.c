@@ -16,14 +16,11 @@
 #include "display.h"
 #include "ui_resolution.h"
 
-#define CVR_WINDOW_NUM 5
+#define CVR_WINDOW_NUM 2
 
 static struct display_window cvr_window[CVR_WINDOW_NUM] = {
     { 0, 0, WIN_W, WIN_H },
-    { WIN_W * 4 / 5, WIN_H * 4 / 5, WIN_W / 5, WIN_H / 5 },
-    { WIN_W * 3 / 5, WIN_H * 4 / 5, WIN_W / 5, WIN_H / 5 },
-    { WIN_W * 2 / 5, WIN_H * 4 / 5, WIN_W / 5, WIN_H / 5 },
-    { WIN_W * 1 / 5, WIN_H * 4 / 5, WIN_W / 5, WIN_H / 5 },
+    { WIN_W * 1 / 2, WIN_H * 1 / 2, WIN_W / 2, WIN_H / 2 },
 };
 
 static bool cvr_position[CVR_WINDOW_NUM];
