@@ -1318,8 +1318,8 @@ int parameter_recover(void)
     parameter.photo_resos_ptr = get_photo_resolutions();
     parameter.photo_resos_max = _MAX_PHO_RES;
 
-    parameter.isp_max_width = 1920;
-    parameter.isp_max_height = 1080;
+    parameter.isp_max_width = 1280;
+    parameter.isp_max_height = 720;
     parameter.cam_num = 5;
     parameter.key_tone_vol = 100;
     parameter.photo_burst = false;
