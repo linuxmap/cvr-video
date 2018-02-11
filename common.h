@@ -27,7 +27,7 @@
 #define UI_FRAME_240P \
   { 320, 240, 30 }
 
-//#define USE_CIF_CAMERA
+#define USE_CIF_CAMERA
 #define USE_USB_WEBCAM 0
 
 typedef signed char s8;
