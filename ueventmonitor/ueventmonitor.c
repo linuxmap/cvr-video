@@ -38,9 +38,9 @@
 
 #define DEVICENAME_LEN      (64)
 #define SDCARD_DELAY_TIME   (500000)
-#define LOW_POWER_SHUTDOWN
+//#define LOW_POWER_SHUTDOWN
 #ifndef _PCBA_SERVICE_
-#define USB_DISCONNECT_SHUTDOWN
+//#define USB_DISCONNECT_SHUTDOWN
 #endif
 struct sdcard_event_t {
     int event_flag;
