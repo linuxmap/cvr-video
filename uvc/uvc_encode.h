@@ -32,6 +32,7 @@ struct uvc_encode {
     struct video_ion uvc_mid;
     void* out_virt;
     int out_fd;
+    struct video_ion uvc_in;
 };
 
 int uvc_encode_init(struct uvc_encode *e);

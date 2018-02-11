@@ -27,6 +27,7 @@ extern "C" {
 #define UVC_FROM_ISP 1
 #define UVC_FROM_DSP 0
 #define UVC_FROM_CIF 1
+#define UVC_FROM_USB 0
 
 void video_record_getfilename(char *str, unsigned short str_len,
                               const char *path, int ch, const char *filetype,

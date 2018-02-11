@@ -82,6 +82,7 @@ extern "C" {
 #include "jpeg_header.h"
 #include "video_interface.h"
 #include "uvc/uvc_user.h"
+#include "uvc/uvc_process.h"
 
 #include "av_wrapper/handler/audio_encode_handler.h"
 #include "handler/scale_encode_ts_handler.h"
@@ -313,11 +314,10 @@ struct Video {
 
     struct video_param video_param[2];
     int disp_position;
+    int uvc_position;
 
     int output_width;
     int output_height;
-
-    struct uvc_encode* uvc_enc;
 
     bool path[5];
 

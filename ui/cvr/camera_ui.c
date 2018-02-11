@@ -102,6 +102,7 @@
 #include "speechrec/speechrec.h"
 #endif
 #include <autoconfig/main_app_autoconf.h>
+#include "uvc_process.h"
 
 //#define USE_WATCHDOG
 
@@ -7410,6 +7411,20 @@ static void proc_record_SCANCODE_CURSORBLOCKRIGHT(HWND hWnd)
 
 static void ui_takephoto(HWND hWnd)
 {
+    static bool test = false;
+
+    if (test) {
+        test = false;
+        set_uvc_window_two(VIDEO_TYPE_CIF);
+        //set_uvc_window_one(VIDEO_TYPE_ISP);
+		printf("cif\n");
+    } else {
+        test = true;
+        set_uvc_window_two(VIDEO_TYPE_ISP);
+        //set_uvc_window_one(VIDEO_TYPE_USB);
+		printf("isp\n");
+    }
+
     if (api_get_sd_mount_state() == SD_STATE_IN && !takephoto) {
         takephoto = true;
         audio_sync_play(capture_sound_file);

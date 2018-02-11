@@ -455,16 +455,28 @@ public:
     ~NV12_UVC() {}
     bool processFrame(shared_ptr<BufferBase> inBuf,
                       shared_ptr<BufferBase> outBuf) {
-        bool ret = false;
+        int src_w, src_h, src_fd, vir_w, vir_h, src_fmt;
 
-        if (video->pthread_run && inBuf.get()) {
-            if (uvc_rga_process(video->uvc_enc, inBuf->getWidth(), inBuf->getHeight(),
-                                inBuf->getVirtAddr(), inBuf->getFd()))
+        src_w = inBuf->getWidth();
+        src_h = inBuf->getHeight();
+        src_fd = (int)(inBuf->getFd());
+        if (video->jpeg_dec.decode) {
+            if (video->jpeg_dec.decode->pkt_size <= 0)
                 return false;
-            ret = uvc_encode_process(video->uvc_enc);
+            vir_w = ALIGN(src_w, 16);
+            vir_h = ALIGN(src_h, 16);
+            if (MPP_FMT_YUV422SP == video->jpeg_dec.decode->fmt)
+                src_fmt = RGA_FORMAT_YCBCR_422_SP;
+            else
+                src_fmt = RGA_FORMAT_YCBCR_420_SP;
+        } else {
+            vir_w = src_w;
+            vir_h = src_h;
+            src_fmt = RGA_FORMAT_YCBCR_420_SP;
         }
-
-        return ret;
+        uvc_process_the_window(video->uvc_position, inBuf->getVirtAddr(), src_fd,
+                               src_w, src_h, src_fmt, vir_w, vir_h);
+        return true;
     }
 };
 

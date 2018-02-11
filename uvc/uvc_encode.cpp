@@ -16,6 +16,7 @@
 extern "C" {
 #include "parameter.h"
 }
+#include "uvc_process.h"
 
 static void init_h264_config(MediaConfig &h264_config,
                              int width, int height, int fps, PixelFormat fmt)
@@ -128,6 +129,15 @@ int uvc_encode_init(struct uvc_encode *e)
         return -1;
     }
 
+    memset(&e->uvc_in, 0, sizeof(e->uvc_in));
+    e->uvc_in.fd = -1;
+    e->uvc_in.client = -1;
+    if (video_ion_alloc(&e->uvc_in, UVC_WINDOW_WIDTH, UVC_WINDOW_HEIGHT)) {
+        printf("%s: %d failed!\n", __func__, __LINE__);
+        return -1;
+    }
+    video_ion_buffer_black(&e->uvc_in, e->uvc_in.width, e->uvc_in.height);
+	
     return 0;
 }
 
@@ -142,6 +152,7 @@ void uvc_encode_exit(struct uvc_encode *e)
     rk_rga_close(e->rga_fd);
     video_ion_free(&e->uvc_out);
     video_ion_free(&e->uvc_mid);
+    video_ion_free(&e->uvc_in);
 }
 
 int uvc_rga_process(struct uvc_encode* e, int in_width, int in_height,

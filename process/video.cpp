@@ -65,30 +65,6 @@ static void (*rec_event_call)(int cmd, void *msg0, void *msg1);
 
 static void (*videos_inited_cb)(int is_record_mode);
 
-static int video_uvc_encode_init(struct Video* video)
-{
-#if USE_USB_WEBCAM
-    video->uvc_enc = new uvc_encode();
-    if (!video->uvc_enc) {
-        printf("no memory!\n");
-        return -1;
-    }
-    return uvc_encode_init(video->uvc_enc);
-#endif
-    return 0;
-}
-
-static void video_uvc_encode_exit(struct Video* video)
-{
-#if USE_USB_WEBCAM
-    if (video->uvc_enc) {
-        uvc_encode_exit(video->uvc_enc);
-        delete video->uvc_enc;
-        video->uvc_enc = NULL;
-    }
-#endif
-}
-
 static void video_record_wait(struct Video* video)
 {
     pthread_mutex_lock(&video->record_mutex);
@@ -803,13 +779,14 @@ static void video_record_deletenode(struct Video* video)
         video->hal = NULL;
     }
 
-    video_uvc_encode_exit(video);
-
     pthread_mutex_destroy(&video->record_mutex);
     pthread_cond_destroy(&video->record_cond);
 
     shield_the_window(video->disp_position, disp_black);
     display_reset_position(video->disp_position);
+
+    uvc_process_shield_the_window(video->uvc_position);
+    uvc_process_reset_position(video->uvc_position);
 
     if (video)
         free(video);
@@ -1267,9 +1244,6 @@ extern "C" int video_record_addvideo(int id,
         goto addvideo_exit;
     }
 
-    if (video_uvc_encode_init(video))
-        goto addvideo_exit;
-
     video->deviceid = id;
     video->save_en = 1;
 
@@ -1299,6 +1273,8 @@ extern "C" int video_record_addvideo(int id,
     } else {
         if ((video->disp_position = display_set_position()) < 0)
             printf("video%d will not display.\n", video->deviceid);
+        if ((video->uvc_position = uvc_process_set_position()) < 0)
+            printf("video%d will not uvc process.\n", video->deviceid);
     }
 
     if (pthread_attr_init(&attr)) {
@@ -1394,8 +1370,6 @@ addvideo_exit:
         pthread_mutex_destroy(&video->record_mutex);
         pthread_cond_destroy(&video->record_cond);
 
-        video_uvc_encode_exit(video);
-
         free(video);
         video = NULL;
     }
@@ -1469,6 +1443,15 @@ extern "C" void video_record_init(struct video_param* front,
     cif_mirror = set_cif_mirror;
     printf("cif_mirror: %d\n", cif_mirror);
 
+#if USE_USB_WEBCAM
+    if (video_uvc_encode_init()) {
+        printf("%s: %d failed!\n", __func__, __LINE__);
+        return;
+    }
+    //set_uvc_window_one(VIDEO_TYPE_ISP);
+    set_uvc_window_two(VIDEO_TYPE_ISP);
+#endif
+
     for (int i = 0, j = 0; i < MAX_VIDEO_DEVICE && j < parameter_get_cam_num(); i++)
         if (!video_record_addvideo(i, front, back, cif, 0, 0))
             j++;
@@ -1516,6 +1499,10 @@ extern "C" void video_record_deinit(bool black)
 
     if (pthread_attr_destroy(&global_attr))
         printf("pthread_attr_destroy failed!\n");
+
+#if USE_USB_WEBCAM
+    video_uvc_encode_exit();
+#endif
 
     video_rec_state = VIDEO_STATE_STOP;
 }
@@ -2488,4 +2475,51 @@ extern "C" void video_record_get_deviceid_by_type(int *devicdid, int type, int c
 
     pthread_rwlock_unlock(&notelock);
     *devicdid = -1;
+}
+
+extern "C" void video_record_reset_uvc_position()
+{
+    struct Video* video = NULL;
+
+    pthread_rwlock_wrlock(&notelock);
+    video = getfastvideo();
+    while (video) {
+        uvc_process_reset_position(video->uvc_position);
+        video = video->next;
+    }
+    pthread_rwlock_unlock(&notelock);
+}
+
+extern "C" void video_record_set_uvc_position(int type)
+{
+    struct Video* video = NULL;
+    int id = -1;
+
+    pthread_rwlock_wrlock(&notelock);
+    video = getfastvideo();
+    while (video) {
+        if (video->type != VIDEO_TYPE_USB || video->usb_type != USB_TYPE_H264) {
+            if (video->type == type) {
+                if ((video->uvc_position = uvc_process_set_position()) < 0)
+                    printf("video%d will not uvc process.\n", video->deviceid);
+                else
+                    id = video->deviceid;
+                break;
+            }
+        }
+        video = video->next;
+    }
+    video = getfastvideo();
+    while (video) {
+        if (video->type != VIDEO_TYPE_USB || video->usb_type != USB_TYPE_H264) {
+            if (video->deviceid != id) {
+                if ((video->uvc_position = uvc_process_set_position()) < 0)
+                    printf("video%d will not uvc process.\n", video->deviceid);
+            }
+        } else {
+                video->uvc_position = -1;
+        }
+        video = video->next;
+    }
+    pthread_rwlock_unlock(&notelock);
 }
