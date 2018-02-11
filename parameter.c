@@ -1328,7 +1328,7 @@ int parameter_recover(void)
 #ifdef _PCBA_SERVICE_
     parameter.video_usb = USB_MODE_RNDIS;
 #else
-    parameter.video_usb = USB_MODE_MSC;
+    parameter.video_usb = USB_MODE_UVC;
 #endif
 
     return parameter_save();

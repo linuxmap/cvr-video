@@ -28,7 +28,7 @@
   { 320, 240, 30 }
 
 #define USE_CIF_CAMERA
-#define USE_USB_WEBCAM 0
+#define USE_USB_WEBCAM 1
 
 typedef signed char s8;
 typedef unsigned char u8;

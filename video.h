@@ -26,7 +26,7 @@ extern "C" {
 
 #define UVC_FROM_ISP 1
 #define UVC_FROM_DSP 0
-#define UVC_FROM_CIF 0
+#define UVC_FROM_CIF 1
 
 void video_record_getfilename(char *str, unsigned short str_len,
                               const char *path, int ch, const char *filetype,
@@ -96,6 +96,8 @@ void video_dvs_enable(int enable);
 bool video_dvs_is_enable(void);
 void video_record_set_fps(int fps);
 void video_record_get_deviceid_by_type(int *devicdid, int type, int cnt);
+void video_record_reset_uvc_position();
+void video_record_set_uvc_position(int type);
 
 #ifdef __cplusplus
 }
