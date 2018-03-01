@@ -19,15 +19,6 @@
 
 #include "dpp_process.h"
 
-using namespace std;
-
-//#define RS_DEBUG
-#ifdef RS_DEBUG
-#define RS_DBG(...) printf(__VA_ARGS__)
-#else
-#define RS_DBG(...)
-#endif
-
 class FaceDetectProcess : public DppProcess
 {
 public:

@@ -17,6 +17,14 @@
 #include "video.hpp"
 #include "nv12_3dnr.hpp"
 #include "dpp_buffer.h"
+extern "C" {
+#include "RSFaceSDK.h"
+}
+#include "face_interface.h"
+
+#define APPID          "f4cbb59ac975f839cf4e5c5c4662eda7"
+#define APPSECRET      "09aae635d26e4e52febc9ea1c3fd58222b6f3498"
+#define DBPATH         "/param/face.db"
 
 #ifdef _PCBA_SERVICE_
 typedef int (*VIDEO_PCBA_CB_TYPE)(void * buff, int width, int height, size_t size);
@@ -123,6 +131,8 @@ public:
                 vir_h = src_h;
                 src_fmt = RGA_FORMAT_YCBCR_420_SP;
             }
+//			void* address = inBuf->getVirtAddr();
+//			yuv420_draw_rectangle(address, src_w, src_h, {100,100,50,50}, set_yuv_color(COLOR_R));
 
 #ifdef _PCBA_SERVICE_
             if (rga_fd < 0) {
@@ -710,6 +720,155 @@ public:
         }
 #endif
 
+        return true;
+    }
+};
+
+class NV12_ReadFace : public StreamPUBase
+{
+    struct Video* video;
+    RSHandle mFaceRecognition = NULL;	
+    RSHandle mLicense = NULL;
+    RSHandle mDetect = NULL;
+    RSHandle mFaceTrack = NULL;
+	rs_face* pFaceArray = NULL;
+	rs_face_feature pFeature;
+	int iFaceCount = 0;
+	int trackid = 0;
+	int InitReadFace() {
+		rsInitLicenseManager(&mLicense, APPID, APPSECRET);
+		if (mLicense == NULL) {
+			printf("init RSface license error!\n");
+			return -1;
+		}
+		rsInitFaceDetect(&mDetect, mLicense);
+		if (mDetect == NULL) {
+			printf("init RSface detect error!\n");
+			return -1;
+		}
+		rsInitFaceTrack(&mFaceTrack, mLicense);
+		if (mFaceTrack == NULL) {
+			printf("init RSface track error!\n");
+			return -1;
+		}
+		rsInitFaceRecognition(&mFaceRecognition, mLicense, DBPATH);
+		if (mFaceRecognition == NULL) {
+			printf("init RSface recognition error!\n");
+			return -1;
+		}
+		rsRecognitionSetConfidence(mFaceRecognition, 55);
+		return 0;
+	}
+
+	void UnInitReadFace() {
+		rsUnInitFaceTrack(&mFaceTrack);
+		rsUnInitFaceDetect(&mDetect);
+		rsUnInitLicenseManager(&mLicense);
+		rsUnInitFaceRecognition(&mFaceRecognition);
+	}
+public:
+    NV12_ReadFace(struct Video* p) : StreamPUBase("NV12_ReadFace", true, true) {
+        video = p;
+		printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>readface init!!!\n");
+		InitReadFace();
+    }
+	
+    ~NV12_ReadFace() {
+		UnInitReadFace();
+	}
+    bool processFrame(shared_ptr<BufferBase> inBuf,
+                      shared_ptr<BufferBase> outBuf) {
+//        int src_w, src_h, src_str, src_fd, vir_w, vir_h, src_fmt, ret;
+        int src_w, src_h, src_str, ret;
+		unsigned char * address = NULL;
+
+        struct face_application_data *app_data = (struct face_application_data*)outBuf->getPrivateData();
+        if (app_data == NULL) {
+            /* app_data will be freed in freeAndSetPrivateData. */
+            app_data = (struct face_application_data*)malloc(sizeof(struct face_application_data));
+            memset(app_data, 0, sizeof(struct face_application_data));
+            outBuf->freeAndSetPrivateData(app_data);
+        }
+
+        struct face_info* info = (struct face_info*)calloc(1, sizeof(*info));
+
+        if (info == NULL) {
+            FACE_DBG("face_info calloc error.\n");
+            return false;
+        }
+
+        if (video->pthread_run && inBuf.get()) {
+            src_w = inBuf->getWidth();
+            src_h = inBuf->getHeight();
+			src_str = inBuf->getStride();
+//			src_fd = (int)(inBuf->getFd());
+			address = (unsigned char*)inBuf->getVirtAddr();
+
+//			if (video->jpeg_dec.decode) {
+//				if (video->jpeg_dec.decode->pkt_size <= 0)
+//					return false;
+//				vir_w = ALIGN(src_w, 16);
+//				vir_h = ALIGN(src_h, 16);
+//				if (MPP_FMT_YUV422SP == video->jpeg_dec.decode->fmt)
+//					src_fmt = RGA_FORMAT_YCBCR_422_SP;
+//				else
+//					src_fmt = RGA_FORMAT_YCBCR_420_SP;
+//			} else {
+//				vir_w = src_w;
+//				vir_h = src_h;
+//				src_fmt = RGA_FORMAT_YCBCR_420_SP;
+//			}
+
+			if (mFaceTrack != NULL) {
+				ret = rsRunFaceTrack(mFaceTrack, address, PIX_FORMAT_NV12, src_w, src_h, src_str, RS_IMG_CLOCKWISE_ROTATE_0, &pFaceArray, &iFaceCount);
+				if (0 != ret) {
+					iFaceCount = 0;
+				}
+//				printf(">>>>>>>>>>>>>>>%d faces have been detected\n", iFaceCount);
+				if (pFaceArray) {
+//					for (int i = 0; i < iFaceCount; i++) {
+//						printf(">>>>>>>>>>>>>>>faces%d have been detected, trackId is %d\n", i, pFaceArray[i].trackId);
+//						YUV_Rect rect_rio = {pFaceArray[i].rect.left, pFaceArray[i].rect.top, pFaceArray[i].rect.height, pFaceArray[i].rect.height};
+//
+//			            src_w = inBuf->getWidth();
+//			            src_h = inBuf->getHeight();
+//						yuv420_draw_rectangle(address, src_w, src_h, rect_rio, set_yuv_color(COLOR_Y));
+//
+//					//TODO
+//
+//					}
+
+		            FACE_DBG("iFaceCount = %d\n", iFaceCount);
+		            info->count = (iFaceCount > MAX_FACE_COUNT ? MAX_FACE_COUNT : iFaceCount);
+		            for (int i = 0; i < info->count; i++) {
+		                FACE_DBG("Face %d position is: [%d, %d, %d, %d]\n", i,
+		                       pFaceArray[i].rect.left, pFaceArray[i].rect.top,
+		                       pFaceArray[i].rect.width, pFaceArray[i].rect.height);
+
+		                info->objects[i].id = pFaceArray[i].trackId;
+		                info->objects[i].x = pFaceArray[i].rect.left;
+		                info->objects[i].y = pFaceArray[i].rect.top;
+		                info->objects[i].width = pFaceArray[i].rect.width;
+		                info->objects[i].height = pFaceArray[i].rect.height;
+						memcpy(info->objects[i].landmarks21, pFaceArray[i].landmarks21, sizeof(pFaceArray[i].landmarks21));
+//		                info->blur_prob = output[i].blur_prob;
+//		                info->front_prob = output[i].front_prob;
+		            }
+				} else {
+			            info->count = 0;
+		        }
+				app_data->mLicense = mLicense;
+				app_data->mFaceRecognition = mFaceRecognition;
+				app_data->face_result = *info;
+			}
+
+//			display_the_window(video->disp_position, src_fd, src_w, src_h, src_fmt, vir_w, vir_h);
+
+				
+			if (pFaceArray) {
+				releaseFaceTrackResult(pFaceArray, iFaceCount);
+			}
+        }
         return true;
     }
 };

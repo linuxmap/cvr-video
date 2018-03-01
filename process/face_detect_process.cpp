@@ -31,12 +31,12 @@ extern "C" int face_regevent_callback(void (*call)(int cmd, void *msg0, void *ms
 FaceDetectProcess::FaceDetectProcess(struct Video* video)
     : DppProcess(video, "FaceDetectProcess", kRsFaceDetection, true)
 {
-    RS_DBG( "%s:%d enter\n", __func__, __LINE__);
+    FACE_DBG( "%s:%d enter\n", __func__, __LINE__);
 }
 
 FaceDetectProcess::~FaceDetectProcess()
 {
-    RS_DBG("%s:%d enter\n", __func__, __LINE__);
+    FACE_DBG("%s:%d enter\n", __func__, __LINE__);
 }
 
 static void face_detect_packet_release(void* data)
@@ -52,37 +52,50 @@ bool FaceDetectProcess::doSomeThing(shared_ptr<BufferBase> outBuf, DppFrame* fra
         dpp::Buffer::SharedPtr buffer = dpp_frame_get_output_buffer(frame);
         int* face_buf = (int*)buffer->address();
 
+        struct face_application_data *app_data = (struct face_application_data*)outBuf->getPrivateData();
+        if (app_data == NULL) {
+            /* app_data will be freed in freeAndSetPrivateData. */
+            app_data = (struct face_application_data*)malloc(sizeof(struct face_application_data));
+            memset(app_data, 0, sizeof(struct face_application_data));
+            outBuf->freeAndSetPrivateData(app_data);
+        }
+
         struct face_info* info = (struct face_info*)calloc(1, sizeof(*info));
 
         if (info == NULL) {
-            RS_DBG("face_info calloc error.\n");
+            FACE_DBG("face_info calloc error.\n");
             return false;
         }
 
         if (face_buf[0] > 0) {
             struct face_output* output = (struct face_output*)(face_buf + 1);
 
-            RS_DBG("face_buf[0] = %d\n", face_buf[0]);
+            FACE_DBG("face_buf[0] = %d\n", face_buf[0]);
             info->count = (face_buf[0] > MAX_FACE_COUNT ? MAX_FACE_COUNT : face_buf[0]);
 
             for (int i = 0; i < info->count; i++) {
-                RS_DBG("Face %d position is: [%d, %d, %d, %d]\n", i,
+                FACE_DBG("Face %d position is: [%d, %d, %d, %d]\n", i,
                        output[i].face_pos.left, output[i].face_pos.top,
                        output[i].face_pos.right, output[i].face_pos.bottom);
 
+                info->objects[i].id = output[i].index;
                 info->objects[i].x = output[i].face_pos.left;
                 info->objects[i].y = output[i].face_pos.top;
                 info->objects[i].width = output[i].face_pos.right - output[i].face_pos.left;
                 info->objects[i].height = output[i].face_pos.bottom - output[i].face_pos.top;
+                info->blur_prob = output[i].blur_prob;
+                info->front_prob = output[i].front_prob;
             }
         } else {
             info->count = 0;
         }
 
+        app_data->face_result = *info;
+
         if (face_event_call)
             (*face_event_call)(0, (void *)info, (void *)0);
     } else {
-        RS_DBG("debug: not face frame????\n");
+        FACE_DBG("debug: not face frame????\n");
     }
 
     return true;
@@ -98,7 +111,7 @@ int FaceDetectProcess::dppPacketProcess(shared_ptr<BufferBase>& inBuf)
             inBuf->getVirtAddr(), (uint32_t)inBuf->getPhyAddr(),
             inBuf->getWidth() * inBuf->getHeight() * 3 / 2, inBuf.get());
     if (!input_buffer) {
-        RS_DBG("Create dpp::WrapBuffer faild, func = %s.\n", __func__);
+        FACE_DBG("Create dpp::WrapBuffer faild, func = %s.\n", __func__);
         rt = -1;
         goto exit;
     }
@@ -107,7 +120,7 @@ int FaceDetectProcess::dppPacketProcess(shared_ptr<BufferBase>& inBuf)
 
     ret = dpp_packet_init(&packet, inBuf->getWidth(), inBuf->getHeight());
     if (kSuccess != ret) {
-        RS_DBG("dpp_packet_init failed.\n");
+        FACE_DBG("dpp_packet_init failed.\n");
         rt = -1;
         goto exit;
     }
@@ -116,7 +129,7 @@ int FaceDetectProcess::dppPacketProcess(shared_ptr<BufferBase>& inBuf)
 
     ret = mDppCore->put_packet(packet, false);
     if (kSuccess != ret) {
-        RS_DBG("put_packet failed.\n");
+        FACE_DBG("put_packet failed.\n");
         rt = -1;
         goto exit;
     }

@@ -181,7 +181,7 @@ void camera_plug(int id, int status)
     } else {
         if (id == uvc_get_user_video_id()) {
             uvc_gadget_pthread_exit();
-            uvc_gadget_pthread_init();
+            uvc_gadget_pthread_init(id);
         } else {
             video_record_deletevideo(id);
         }

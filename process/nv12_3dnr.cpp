@@ -21,7 +21,7 @@ extern void (*rec_event_call)(int cmd, void *msg0, void *msg1);
 extern unsigned int user_noise;
 
 NV12_3DNR::NV12_3DNR(struct Video *video)
-    : DppProcess(video, "NV12_3DNR", k3DNoiseReduction, false) {}
+    : DppProcess(video, "NV12_3DNR", kImageDistortionCorrection, false) {}
 
 NV12_3DNR::~NV12_3DNR() {}
 

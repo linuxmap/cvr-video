@@ -146,16 +146,16 @@ int cif_video_path(struct Video* video)
 
     video->hal->nv12_disp = shared_ptr<NV12_Display>(new NV12_Display(video));
     if (video->cif_type == CIF_TYPE_CVBS) {
-        if (hal_add_pu(video->hal->nv12_iep, video->hal->nv12_disp, video->frmFmt, 0, NULL))
-            return -1;
+ 	   if (hal_add_pu(video->hal->nv12_iep, video->hal->nv12_disp, video->frmFmt, 0, NULL))
+ 		   return -1;
     } else {
-        if (cif_mirror) {
-            if (hal_add_pu(video->hal->nv12_mirr, video->hal->nv12_disp, video->frmFmt, 0, NULL))
-                return -1;
-        } else {
-            if (hal_add_pu(video->hal->mpath, video->hal->nv12_disp, video->frmFmt, 0, NULL))
-                return -1;
-        }
+ 	   if (cif_mirror) {
+ 		   if (hal_add_pu(video->hal->nv12_mirr, video->hal->nv12_disp, video->frmFmt, 0, NULL))
+ 			   return -1;
+ 	   } else {
+ 		   if (hal_add_pu(video->hal->mpath, video->hal->nv12_disp, video->frmFmt, 0, NULL))
+ 			   return -1;
+ 	   }
     }
 
     if (is_record_mode) {
@@ -210,6 +210,14 @@ int cif_video_path(struct Video* video)
         return -1;
 #endif
 
+	video->hal->nv12_readface = shared_ptr<NV12_ReadFace>(new NV12_ReadFace(video));
+	if (hal_add_pu(video->hal->mpath, video->hal->nv12_readface, video->frmFmt, 0, NULL))
+		return -1;
+
+	video->hal->nv12_face_capture = shared_ptr<FaceCaptureProcess>(new FaceCaptureProcess(video));
+	if (hal_add_pu(video->hal->nv12_readface, video->hal->nv12_face_capture, video->frmFmt, 3, video->hal->bufAlloc))
+		return -1;
+
     return 0;
 }
 
@@ -225,6 +233,10 @@ int cif_video_start(struct Video* video)
 
 void cif_video_deinit(struct Video* video)
 {
+	hal_remove_pu(video->hal->nv12_readface, video->hal->nv12_face_capture);
+
+	hal_remove_pu(video->hal->mpath, video->hal->nv12_readface);
+
 #if USE_USB_WEBCAM && UVC_FROM_CIF
     hal_remove_pu(video->hal->mpath, video->hal->nv12_uvc);
 #endif

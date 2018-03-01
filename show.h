@@ -18,7 +18,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#ifdef USE_DISP_TS
+//#ifdef USE_DISP_TS
 typedef enum {
     COLOR_Y,
     COLOR_R,
@@ -60,7 +60,7 @@ void yuv420_draw_rectangle(void* imgdata,
     YUV_Rect rect_rio,
     YUV_Color color);
 
-#endif
+//#endif
 
 void show_string(const char* str,
                  int size,

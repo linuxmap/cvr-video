@@ -132,6 +132,11 @@ static int video_isp_add_mp_3dnr(struct Video* video)
     } else
         pre = video->hal->dsp_trans;
 
+//	video->hal->dnr_readface = shared_ptr<NV12_ReadFace>(new NV12_ReadFace(video));
+//	if (hal_add_pu(video->hal->dsp_trans, video->hal->dnr_readface,
+//				   video->frmFmt, 0, NULL))
+//		return -1;
+
     video->hal->dnr_disp = shared_ptr<NV12_Display>(new NV12_Display(video));
     if (hal_add_pu(pre, video->hal->dnr_disp,
                    video->frmFmt, 0, NULL))
@@ -177,12 +182,24 @@ static int video_isp_add_mp_3dnr(struct Video* video)
                         video->frmFmt, 0, NULL))
         return -1;
 #endif
+//	video->hal->nv12_readface = shared_ptr<NV12_ReadFace>(new NV12_ReadFace(video));
+//	if (hal_add_pu(video->hal->mpath, video->hal->nv12_readface, video->frmFmt, 0, NULL))
+//		return -1;
+//	
+//	video->hal->nv12_face_capture = shared_ptr<FaceCaptureProcess>(new FaceCaptureProcess(video));
+//	if (hal_add_pu(video->hal->nv12_readface, video->hal->nv12_face_capture, video->frmFmt, 3, video->hal->bufAlloc))
+//		return -1;
+
     return 0;
 }
 
 static void video_isp_remove_mp_3dnr(struct Video* video)
 {
     shared_ptr<StreamPUBase> pre;
+
+//	hal_remove_pu(video->hal->nv12_readface, video->hal->nv12_face_capture);
+//
+//	hal_remove_pu(video->hal->mpath, video->hal->nv12_readface);
 
     if (parameter_get_video_flip() && !USE_ISP_FLIP)
         pre = video->hal->nv12_flip;
@@ -217,6 +234,9 @@ static void video_isp_remove_mp_3dnr(struct Video* video)
     hal_remove_pu(pre, video->hal->dnr_disp);
     video->hal->dnr_disp.reset();
 
+//    hal_remove_pu(video->hal->dsp_trans, video->hal->dnr_readface);
+//    video->hal->dnr_readface.reset();
+
     if (parameter_get_video_flip() && !USE_ISP_FLIP) {
         hal_remove_pu(video->hal->dsp_trans, video->hal->nv12_flip);
         video->hal->nv12_flip.reset();
@@ -248,12 +268,20 @@ static int video_isp_add_sp_display(struct Video* video)
     if (hal_add_pu(video->hal->spath, video->hal->sp_disp,
                    video->spfrmFmt, 0, NULL))
         return -1;
+	
+	video->hal->sp_readface = shared_ptr<NV12_ReadFace>(new NV12_ReadFace(video));
+	if (hal_add_pu(video->hal->spath, video->hal->sp_readface,
+				   video->frmFmt, 0, NULL))
+		return -1;
 
     return 0;
 }
 
 static void video_isp_remove_sp_display(struct Video* video)
 {
+	hal_remove_pu(video->hal->spath, video->hal->sp_readface);
+	video->hal->sp_readface.reset();
+
     hal_remove_pu(video->hal->spath, video->hal->sp_disp);
     video->hal->sp_disp.reset();
 }

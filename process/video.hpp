@@ -77,6 +77,8 @@ extern "C" {
 #include <dvs/dvs.h>
 
 #include "face_detect_process.h"
+#include "face_capture_process.h"
+
 #include "encode_handler.h"
 #include "gyrosensor.h"
 #include "jpeg_header.h"
@@ -125,6 +127,7 @@ class NV12_FLIP;
 class MP_RGA;
 class NV12_3DNR;
 class NV12_DVS;
+class NV12_ReadFace;
 class TRANSPARENT;
 class NV12_Encode_S;
 class DPP_NV12_Encode_S;
@@ -148,6 +151,7 @@ struct hal {
     shared_ptr<NV12_UVC> nv12_uvc;
     shared_ptr<NV12_MIRROR> nv12_mirr;
     shared_ptr<NV12_FLIP> nv12_flip;
+	shared_ptr<NV12_ReadFace> nv12_readface;
 
     shared_ptr<MP_RGA> mp_rga;
     shared_ptr<NV12_MJPG> rga_mjpg;
@@ -160,6 +164,7 @@ struct hal {
     shared_ptr<NV12_Encode> dnr_enc;
     shared_ptr<NV12_MJPG> dnr_mjpg;
     shared_ptr<NV12_UVC> dnr_uvc;
+	shared_ptr<NV12_ReadFace> dnr_readface;
 #if MAIN_APP_NEED_DOWNSCALE_STREAM
     shared_ptr<DPP_NV12_Encode_S> dnr_enc_s;
     shared_ptr<MP_RGA> sp_rga;
@@ -168,9 +173,12 @@ struct hal {
 #ifdef ENABLE_RS_FACE
     shared_ptr<FaceDetectProcess> nv12_face_detect;
 #endif
+	shared_ptr<FaceCaptureProcess> nv12_face_capture;
+
     shared_ptr<NV12_Display> sp_disp;
     shared_ptr<NV12_Display> mp_disp;
     shared_ptr<NV12_ADAS> sp_adas;
+	shared_ptr<NV12_ReadFace> sp_readface;
 };
 
 typedef struct ispinfo {

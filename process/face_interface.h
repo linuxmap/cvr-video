@@ -15,18 +15,29 @@
 #ifndef __FACE_INTERFACE_H__
 #define __FACE_INTERFACE_H__
 
+#include <rk_fb/rk_fb.h>
+#include "RSCommon.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define FACE_DEBUG
+#ifdef FACE_DEBUG
+#define FACE_DBG(...) printf(__VA_ARGS__)
+#else
+#define FACE_DBG(...)
+#endif
+
 #define MAX_FACE_COUNT 10
-#define FACE_RECOGNITION_FEATURE_DIMENSION 128
+#define RS_FACE_RECOGNITION_FEATURE_DIMENSION 128
 
 struct face_detect_object {
+    int id;
     int x;
     int y;
     int width;
     int height;
+	rs_point landmarks21[21];
 };
 
 struct face_detect_pos {
@@ -36,9 +47,24 @@ struct face_detect_pos {
     int bottom;
 };
 
+/*
+ * blur_prob(0 - 1): Ambiguity, The smaller the number, the clearer.
+ * front_prob(0 - 1): Face angle, The larger the number, the better the face angle
+ */
 struct face_info {
     int count;
+    float blur_prob;
+    float front_prob;
+
     struct face_detect_object objects[MAX_FACE_COUNT];
+};
+
+struct face_application_data {
+    RSHandle mFaceRecognition;	
+    RSHandle mLicense;
+    RSHandle mDetect;
+    RSHandle mFaceTrack;
+    struct face_info face_result;
 };
 
 /* This structure should be the same as readsense face tracking sdk. */
@@ -51,7 +77,7 @@ struct face_output {
     float front_prob;
 
     int fr_available_flag;
-    float fr_feature[FACE_RECOGNITION_FEATURE_DIMENSION];
+    float fr_feature[RS_FACE_RECOGNITION_FEATURE_DIMENSION];
 };
 
 int face_regevent_callback(void (*call)(int cmd, void *msg0, void *msg1));

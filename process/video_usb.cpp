@@ -82,6 +82,9 @@ static int usb_video_path_yuyv(struct Video* video)
     video->hal->nv12_disp = shared_ptr<NV12_Display>(new NV12_Display(video));
     if (hal_add_pu(video->hal->yuyv_nv12, video->hal->nv12_disp, frmFmt, 0, NULL))
         return -1;
+//    video->hal->nv12_readface = shared_ptr<NV12_ReadFace>(new NV12_ReadFace(video));
+//    if (hal_add_pu(video->hal->yuyv_nv12, video->hal->nv12_readface, frmFmt, 0, NULL))
+//        return -1;
 
     if (is_record_mode) {
         video->hal->nv12_enc = shared_ptr<NV12_Encode>(new NV12_Encode(video));
@@ -127,6 +130,9 @@ static int usb_video_path_mjpeg(struct Video* video)
     video->hal->nv12_disp = shared_ptr<NV12_Display>(new NV12_Display(video));
     if (hal_add_pu(video->hal->mjpg_nv12, video->hal->nv12_disp, frmFmt, 0, NULL))
         return -1;
+//    video->hal->nv12_readface = shared_ptr<NV12_ReadFace>(new NV12_ReadFace(video));
+//    if (hal_add_pu(video->hal->yuyv_nv12, video->hal->nv12_readface, frmFmt, 0, NULL))
+//        return -1;
 
     if (is_record_mode) {
         video->hal->nv12_enc = shared_ptr<NV12_Encode>(new NV12_Encode(video));
@@ -214,7 +220,9 @@ static void usb_video_deinit_yuyv(struct Video* video)
 
     hal_remove_pu(video->hal->yuyv_nv12, video->hal->nv12_enc);
 
-    hal_remove_pu(video->hal->yuyv_nv12, video->hal->nv12_disp);
+//    hal_remove_pu(video->hal->yuyv_nv12, video->hal->nv12_disp);
+
+	hal_remove_pu(video->hal->yuyv_nv12, video->hal->nv12_readface);
 
     hal_remove_pu(video->hal->mpath, video->hal->yuyv_nv12);
 }
@@ -226,7 +234,8 @@ static void usb_video_deinit_mjpeg(struct Video* video)
 
     hal_remove_pu(video->hal->mjpg_nv12, video->hal->nv12_enc);
 
-    hal_remove_pu(video->hal->mjpg_nv12, video->hal->nv12_disp);
+//    hal_remove_pu(video->hal->mjpg_nv12, video->hal->nv12_disp);
+    hal_remove_pu(video->hal->mjpg_nv12, video->hal->nv12_readface);
 
     hal_remove_pu(video->hal->mpath, video->hal->mjpg_nv12);
 

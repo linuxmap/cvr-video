@@ -26,7 +26,8 @@ LIBS	 = -L$(LIBPATH) -lcam_hal \
            -lswresample      \
            -lavformat -lavcodec -lavutil -lfdk-aac -lz \
            -lsalsa -lfsmanage -ldpp -lrk_backtrace -liep \
-           -lrkfb -lrkrga
+           -lrkfb -lrkrga \
+           -lReadFace -lrs_face_recognition
 
 ETCPATH  = ../../out/system/etc
 RESPATH  = ../../out/system/share/minigui/res/images
