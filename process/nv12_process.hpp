@@ -864,7 +864,9 @@ public:
 
 //			display_the_window(video->disp_position, src_fd, src_w, src_h, src_fmt, vir_w, vir_h);
 
-				
+			if(info) {
+				free(info);
+			}
 			if (pFaceArray) {
 				releaseFaceTrackResult(pFaceArray, iFaceCount);
 			}
