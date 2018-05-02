@@ -1,0 +1,98 @@
+# RV_TARGET_MAIN_APP always y
+
+#if RV_TARGET_MAIN_APP
+menu "[rv] main app setting options"
+
+config RV_TARGET_MAIN_APP_UI_TYPE
+	string
+	default RV_PRODUCT_TYPE
+	help
+	  type: CVR/SDV/IPC/FACE/SAMPLE/NO_DISP
+
+config RV_TARGET_MAIN_APP_CACHE_ENCODEDATA_IN_MEM
+	bool "cache encode data"
+	default n
+	help
+	  cache the encode data in memory which will be saved when some special events occur
+
+config RV_TARGET_MAIN_APP_RECORD_FORMAT
+	string "set recording muxer format"
+	default "mp4"
+	help
+	  set mp4/mov/avi/ts
+
+config RV_TARGET_MAIN_APP_AUDIO_ENC_FORMAT
+	string "set recording audio encode format"
+	default "aac"
+	help
+	  set aac/pcm/raw. raw is the same to pcm.
+
+config RV_TARGET_MAIN_APP_TS_PROTOCOL
+	string "transfer stream out protocol"
+	default "rtsp"
+	help
+	  set rtp/rtsp/rtmp/file
+
+config RV_TARGET_MAIN_APP_ENABLE_CVBS_IN
+	bool "Enable cvbs in camera"
+	default y
+
+# move to dpp/Config.in ?
+config RV_TARGET_MAIN_APP_NEED_DOWNSCALE_STREAM
+	bool "DPP Generate another small resolution stream"
+	default y if RV_TARGET_MAIN_APP_UI_TYPE = "SDV"
+	default n
+
+config RV_TARGET_MAIN_APP_ALWAYS_REWRITE_PARAMETER
+	bool "Rewrite parameter for debug"
+	default n
+
+config RV_TARGET_MAIN_APP_ENABLE_SCREEN_CAPTURE
+	bool "Enable screen capture"
+	default n
+	help
+	  enable the function of screen capture
+
+config RV_TARGET_MAIN_APP_ENABLE_DISP_HOLD
+	bool "Enable disp hold"
+	default y
+	help
+	  By application control when it can be displayed
+
+config RV_TARGET_MAIN_APP_AUDIO_SAMPLE_NUM
+	int "Sample num of audio for capture and playback"
+	default 1024
+
+config RV_TARGET_MAIN_APP_AUDIO_SAMPLE_RATE
+	int "Sample_rate num of audio for capture and playback"
+	default 16000
+
+config RV_TARGET_RIL_MOUDULE
+	bool "Enable ril moudule"
+	default n
+	help
+	  enable the function of ril moudule
+
+config RV_TARGET_GPS_MOVTEXT
+	bool "Enable gps mov text"
+	default n
+	depends on RV_TARGET_GPS
+	help
+	  enable the function of ril moudule
+
+config RV_TARGET_ISP_FLIP
+	bool "Enable ISP FLIP"
+	default y
+	help
+	  when menu Flip setting on, the video will filp from ISP driver
+
+config RV_TARGET_MAIN_APP_FACE_DETECT
+    bool "Enable face detect"
+    depends on RV_ENABLE_READSENSE_FACE_DETECTION
+    default y if RV_TARGET_MAIN_APP_UI_TYPE = "FACE"
+    default n
+    help
+        enable the function of face detect
+
+endmenu
+#endif

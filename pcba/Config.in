@@ -1,0 +1,33 @@
+menu "PCBA Service"
+
+comment "Defines used for PCBA Service"
+
+config RV_PCBA_ENABLE
+        bool "Enable PCBA Service"
+        help
+          Defines used for PCBA Service.
+
+choice
+        prompt "Choice of communication mode"
+        default RV_PCBA_NETWORK
+        depends on RV_PCBA_ENABLE
+
+        config RV_PCBA_NETWORK
+                bool "network split"
+        config RV_PCBA_WIFI
+                bool "wifi split"
+        config RV_PCBA_RNDIS
+                bool "rndis split"
+endchoice
+
+config RV_PCBA_WIFI_SSID
+        string "wifi ssid"
+        default "RV1108_TEST"
+        depends on RV_PCBA_WIFI
+
+config RV_PCBA_WIFI_PASSWD
+        string "wifi password"
+        default "12345678"
+        depends on RV_PCBA_WIFI
+
+endmenu

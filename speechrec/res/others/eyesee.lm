@@ -1,0 +1,61 @@
+Language model created by QuickLM on Fri Aug  4 04:38:36 EDT 2017
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 9 sentences and 11 words
+
+\data\
+ngram 1=11
+ngram 2=18
+ngram 3=9
+
+\1-grams:
+-0.7782 </s> -0.3010
+-0.7782 <s> -0.2218
+-1.7324 关闭倒车 -0.2218
+-1.7324 关闭录像 -0.2218
+-1.7324 关闭屏保 -0.2218
+-1.7324 开启倒车 -0.2218
+-1.7324 开启录像 -0.2218
+-1.7324 开启屏保 -0.2218
+-1.7324 拍照 -0.2218
+-1.7324 上锁视频 -0.2218
+-1.7324 小易在吗 -0.2218
+
+\2-grams:
+-1.2553 <s> 关闭倒车 0.0000
+-1.2553 <s> 关闭录像 0.0000
+-1.2553 <s> 关闭屏保 0.0000
+-1.2553 <s> 开启倒车 0.0000
+-1.2553 <s> 开启录像 0.0000
+-1.2553 <s> 开启屏保 0.0000
+-1.2553 <s> 拍照 0.0000
+-1.2553 <s> 上锁视频 0.0000
+-1.2553 <s> 小易在吗 0.0000
+-0.3010 关闭倒车 </s> -0.3010
+-0.3010 关闭录像 </s> -0.3010
+-0.3010 关闭屏保 </s> -0.3010
+-0.3010 开启倒车 </s> -0.3010
+-0.3010 开启录像 </s> -0.3010
+-0.3010 开启屏保 </s> -0.3010
+-0.3010 拍照 </s> -0.3010
+-0.3010 上锁视频 </s> -0.3010
+-0.3010 小易在吗 </s> -0.3010
+
+\3-grams:
+-0.3010 <s> 关闭倒车 </s>
+-0.3010 <s> 关闭录像 </s>
+-0.3010 <s> 关闭屏保 </s>
+-0.3010 <s> 开启倒车 </s>
+-0.3010 <s> 开启录像 </s>
+-0.3010 <s> 开启屏保 </s>
+-0.3010 <s> 拍照 </s>
+-0.3010 <s> 上锁视频 </s>
+-0.3010 <s> 小易在吗 </s>
+
+\end\

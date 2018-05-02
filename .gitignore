@@ -1,0 +1,8 @@
+video
+*.o
+*.d
+ui_resolution.h
+.tags
+.tags_sorted_by_file
+.*
+*.patch
