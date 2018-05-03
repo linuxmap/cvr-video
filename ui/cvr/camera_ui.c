@@ -7442,6 +7442,8 @@ static void proc_MSG_SDMOUNTFAIL(HWND hWnd)
     int mesg = 0;
 
     printf("MSG_SDMOUNTFAIL\n");
+	return;
+	
     if (parameter_get_video_lan() == 1)
         mesg =
             MessageBox(hWnd, "加载sd卡失败，\n是否格式化sd卡?", "警告!!!", MB_YESNO | MB_DEFBUTTON2);
