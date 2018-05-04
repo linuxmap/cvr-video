@@ -5,7 +5,7 @@ menu "[rv] main app setting options"
 
 config RV_TARGET_MAIN_APP_UI_TYPE
 	string
-	default RV_PRODUCT_TYPE
+	default "FACE"
 	help
 	  type: CVR/SDV/IPC/FACE/SAMPLE/NO_DISP
 

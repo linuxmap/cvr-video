@@ -27,7 +27,7 @@ LIBS	 = -L$(LIBPATH) -lcam_hal \
            -lavformat -lavcodec -lavutil -lfdk-aac -lz \
            -lsalsa -lfsmanage -ldpp -lrk_backtrace -liep \
            -lrkfb -lrkrga \
-           -lReadFace -lrs_face_recognition
+           -lrs_face_recognition -L./ -lReadFace
 
 ETCPATH  = ../../out/system/etc
 RESPATH  = ../../out/system/share/minigui/res/images
@@ -196,6 +196,7 @@ $(BIN): $(CDEPS) $(CXXDEPS) $(COBJS) $(CPPOBJS)
 install: $(ETCPATH) $(RESPATH) $(INSTALL_BIN_PATH) $(BIN) $(RES_FILES)
 	$(Q)install -d $(INSTALL_BIN_PATH)
 	$(Q)install -C $(BIN) $(INSTALL_BIN_PATH)
+	@cp libReadFace.so $(LIBPATH)/ -a
 	@#copy the res to device
 	$(Q)cp -rp res/watermark/* $(RESPATH)
 ifeq (,$(filter $(COMPILE_UI_TYPE),SAMPLE FACE))
