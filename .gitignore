@@ -6,3 +6,4 @@ ui_resolution.h
 .tags_sorted_by_file
 .*
 *.patch
+tags
