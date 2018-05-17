@@ -291,12 +291,14 @@ void api_video_init(int mode)
         video_record_init(&photo, &photo, &photo);
     } else {
         cur_mode = MODE_RECORDING;
-        video_record_set_record_mode(true);
+        video_record_set_record_mode(true); // set fb yuv and colorspace
         video_record_init(front, back, cif);
     }
 
-    if (parameter_get_collision_level() != 0)
+    if (parameter_get_collision_level() != 0) {
+	printf("czy: video_record_start_cache\n");
         video_record_start_cache(COLLISION_CACHE_DURATION);
+	}
 }
 
 void api_video_deinit(bool black)
@@ -1019,7 +1021,7 @@ int gdb_usb_debug = 0;
 
 void api_poweron_init(fun_cb cb)
 {
-#ifdef USE_WATCHDOG
+#ifdef USE_WATCHDOG // not define
     char pathname[] = "/dev/watchdog";
 
     printf ("use watchdog\n");
@@ -1030,11 +1032,12 @@ void api_poweron_init(fun_cb cb)
         ioctl(fd_wtd, WDIOC_KEEPALIVE, 0);
     }
 #endif
-#ifdef DEBUG
+#ifdef DEBUG //DEBUG is defined
     /* if /tmp/RV_USB_STATE_MASK_DEBUG is exist, do not care USB event */
     gdb_usb_debug = !access("/tmp/RV_USB_STATE_MASK_DEBUG", F_OK);
+	printf("czy: gdb_usb_debug = %d\n", gdb_usb_debug);
 #endif
-    if (!gdb_usb_debug)
+    if (!gdb_usb_debug) //gdb_usb_debug defaule value 0
         android_usb_init();
     parameter_init();
     video_record_init_lock(); //must before uevent init
@@ -1054,11 +1057,15 @@ void api_poweron_init(fun_cb cb)
 #ifdef USE_ADAS
     AdasEventRegCallback(adas_event_callback);
 #endif
+	//mark by czy
     set_video_init_complete_cb(notify_videos_inited);
+	//end mark czy
     sd_reg_event_callback(sd_event_callback);
     hdmi_reg_event_callback(hdmi_event_callback);
     cvbsout_reg_event_callback(cvbsout_event_callback);
+	//mark by czy
     camera_reg_event_callback(camere_event_callback);
+	//end mark czy
     USER_RegEventCallback(user_event_callback);
     VIDEOPLAY_RegEventCallback(videoplay_event_callback);
     fs_msg_file_reg_callback(fsfile_event_callbak);
@@ -1071,9 +1078,9 @@ void api_poweron_init(fun_cb cb)
 #endif
     if (!gdb_usb_debug && parameter_get_video_usb() == USB_MODE_RNDIS)
         rndis_management_start();
-
-    api_uvc_init();
-
+	//mark by czy
+    api_uvc_init(); //set usb idproduct to uvc
+	//end mark czy
     /*
      * If file size have been changed, need call the callball to nofity fs_manage
      * to change storage policy. Such as recordtime, resolution,

@@ -251,6 +251,7 @@ static void* uvc_gadget_pthread(void* arg)
 
 int uvc_gadget_pthread_init(int id)
 {
+	printf("czy: uvc_set_user_video_id = %d\n", id);
     uvc_set_user_video_id(id);
     if (pthread_create(&uvc_id, NULL, uvc_gadget_pthread, NULL)) {
         printf("create uvc_gadget_pthread fail!\n");

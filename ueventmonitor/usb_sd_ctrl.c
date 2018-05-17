@@ -217,6 +217,9 @@ void android_usb_init(void)
     mkdir("/dev/usb-ffs/adb", 755);
     errno = 0;
     ret = mount("adb", "/dev/usb-ffs/adb", "functionfs", 0, NULL);
+	//add by czy
+	printf("czy: android_usb_init \n");
+	//end add czy
     printf(" mount adb ffs ret %d, error : %s\n", ret, strerror(errno));
     sysfs_write("/sys/class/android_usb/android0/f_ffs/aliases", "adb");
 

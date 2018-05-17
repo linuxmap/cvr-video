@@ -584,6 +584,7 @@ int isp_video_init(struct Video* video,
         .frmFmt = HAL_FRMAE_FMT_NV12, .colorSpace = color_space, .fps = fps,
     };
 
+	printf("czy: isp video init \n");
     if (with_sp) {
         if (with_mp) {
             frm_info_t spfrmFmt = {

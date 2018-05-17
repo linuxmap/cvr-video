@@ -505,13 +505,13 @@ static int video_set_white_balance(struct Video* video, int i)
         mode = HAL_WB_DAYLIGHT;
         break;
     case 2:
-        mode = HAL_WB_FLUORESCENT;
+        mode = HAL_WB_FLUORESCENT;//荧光
         break;
     case 3:
-        mode = HAL_WB_CLOUDY_DAYLIGHT;
+        mode = HAL_WB_CLOUDY_DAYLIGHT;//多云
         break;
     case 4:
-        mode = HAL_WB_INCANDESCENT;
+        mode = HAL_WB_INCANDESCENT; //白炽灯
         break;
     default:
         printf("video%d set white balance input error!\n", video->deviceid);
@@ -713,6 +713,10 @@ int video_init_setting(struct Video* video)
             return -1;
     }
 
+	//add by czy
+	printf("czy:  default white balance = %d\n", parameter_get_wb());
+	//end add czy
+
     if (video_set_white_balance(video, parameter_get_wb()))
         return -1;
 
@@ -877,7 +881,7 @@ static void* video_record(void* arg)
         }
     }
 
-#ifdef USE_WATERMARK
+#ifdef USE_WATERMARK //defined
     /* video watermark */
     if (is_record_mode) {
         if (!watermark_config(video->output_width, video->output_height, &video->watermark))
@@ -970,6 +974,7 @@ static int video_record_query_businfo(struct Video* video, int id)
     struct v4l2_capability cap;
 
 #if USE_USB_WEBCAM
+	printf("czy: uvc_user_video_id = %d\n", uvc_get_user_video_id());
     if (id == uvc_get_user_video_id())
         return -1;
 #endif
@@ -990,7 +995,7 @@ static int video_record_query_businfo(struct Video* video, int id)
     close(fd);
 
     memcpy(video->businfo, cap.bus_info, sizeof(video->businfo));
-    //printf("%s businfo:%s\n",dev,video->businfo);
+    printf("czy :%s businfo:%s\n",dev,video->businfo);
 
     return 0;
 }
@@ -1010,7 +1015,7 @@ static inline bool video_record_isp_have_added(void)
         }
         video = video->next;
     }
-
+	printf("czy: isp have added\n");
     return ret;
 }
 
@@ -1145,6 +1150,9 @@ extern "C" int video_record_addvideo(int id,
     pthread_attr_t attr;
     int ret = 0;
 
+	//add by czy
+	printf("czy: addvideo begin \n");
+	//end add czy
     pthread_rwlock_wrlock(&notelock);
 
     if (check_record_init && !record_init_flag) {
@@ -1170,6 +1178,7 @@ extern "C" int video_record_addvideo(int id,
     video->pthread_run = 1;
     video->photo.state = PHOTO_END;
 
+	printf("czy: cam_num = %d \n", parameter_get_cam_num());
     if (parameter_get_cam_num() > 1) {
         if (video_record_query_businfo(video, id))
             goto addvideo_exit;
@@ -1185,7 +1194,7 @@ extern "C" int video_record_addvideo(int id,
     } else if (strstr((char*)video->businfo, "usb")) {
         video->type = VIDEO_TYPE_USB;
     } else if (strstr((char*)video->businfo, "cif")) {
-#ifdef USE_CIF_CAMERA
+#ifdef USE_CIF_CAMERA //defined
         video->type = VIDEO_TYPE_CIF;
 
 #ifdef _PCBA_SERVICE_
@@ -1436,20 +1445,20 @@ extern "C" void video_record_init(struct video_param* front,
         return;
     }
 
-    video_record_get_parameter();
+    video_record_get_parameter(); // with_mp, sp, adas
 
     disp_black = true;
 
     cif_mirror = set_cif_mirror;
     printf("cif_mirror: %d\n", cif_mirror);
 
-#if USE_USB_WEBCAM
+#if USE_USB_WEBCAM //defined
     if (video_uvc_encode_init()) {
         printf("%s: %d failed!\n", __func__, __LINE__);
         return;
     }
-    //set_uvc_window_one(VIDEO_TYPE_ISP);
-    set_uvc_window_two(VIDEO_TYPE_ISP);
+    set_uvc_window_one(VIDEO_TYPE_ISP);
+    //set_uvc_window_two(VIDEO_TYPE_ISP);
 #endif
 
     for (int i = 0, j = 0; i < MAX_VIDEO_DEVICE && j < parameter_get_cam_num(); i++)

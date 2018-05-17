@@ -489,7 +489,9 @@ int main(int argc, char *argv[])
 #endif
     load_resources();
     api_poweron_init(msg_manager_cb);
+	//mark by czy
     api_video_init(VIDEO_MODE_REC);
+	//end mark czy
     while (1) {
         usleep(200000);
         watermark_update();

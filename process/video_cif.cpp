@@ -34,6 +34,9 @@ int cif_video_init(struct Video* video,
     };
     struct video_param cif_reso;
 
+	//add by czy
+	printf("czy: cif video init\n");
+	//end add czy
     // translate to cif num
     for (i = 0; i < g_test_cam_infos.num_camers; i++) {
         if (g_test_cam_infos.cam[i]->type == RK_CAM_ATTACHED_TO_CIF &&

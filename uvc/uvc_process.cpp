@@ -206,6 +206,7 @@ static void set_uvc_window(struct uvc_window* win, int num, bool* pos, int type)
 {
     struct uvc_process* cur = NULL;
 
+	printf("czy: set uvc window\n");
     video_record_reset_uvc_position();
 
     pthread_mutex_lock(&uvc_process_lock);

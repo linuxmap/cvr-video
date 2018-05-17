@@ -91,6 +91,7 @@ static int h264_init_alloc(struct uvc_encode *e, int width, int height)
 
 int uvc_encode_init(struct uvc_encode *e)
 {
+	printf("czy: mpp init\n");
     if (vpu_nv12_encode_jpeg_init_ext(&e->encode, 640, 360, 7)) {
         printf("%s: %d failed!\n", __func__, __LINE__);
         return -1;

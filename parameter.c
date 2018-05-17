@@ -1342,26 +1342,34 @@ int parameter_init(void)
     /* If set flag in loader, will recovery reset it */
 #ifdef ENABLE_FLASH_PARAM
     ret = parameter_flash_get_flashed();
+	printf("czy: enable flash param, ret = %d\n",ret);
     /* If we flash the firmware via upgrade tool, we need recover parameters */
-    if (ret == BOOT_FLASHED) {
+    if (ret == BOOT_FLASHED) { //BOOT_FLASHED=1
         parameter_recover();
         parameter_flash_clear_flashed();
+	printf("czy: in Boot_flashed\n");
         return 0;
     }
 #endif
 
+	printf("czy: out Boot_flashed\n");
     ret = parameter_param_read();
 #if MAIN_APP_ALWAYS_REWRITE_PARAMETER
+	printf("czy: always rewrite para, ret = %d\n", ret);
     ret = -1;
 #endif
+	printf("czy: out ret = %d\n", ret);
     if (ret == -1)
         return parameter_recover();
     if (ret == -2)
         return -1;
     /* If version have been change, will recovery */
     version = parameter_get_param_version();
-    if (strcmp(version, PARAM_VERSION) != 0)
+    if (strcmp(version, PARAM_VERSION) != 0) {
         return parameter_recover();
+	}
+
+	printf("czy: final return 0\n");
     return 0;
 }
 
