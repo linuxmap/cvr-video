@@ -283,7 +283,7 @@ void api_video_init(int mode)
     struct photo_param *param = parameter_get_photo_param();
     struct video_param photo = {param->width, param->height, 30};
 
-    video_record_setaudio(parameter_get_video_audio());
+    video_record_setaudio(parameter_get_video_audio()); //video_audio = 1
 
     if (mode == VIDEO_MODE_PHOTO) {
         cur_mode = MODE_PHOTO;
@@ -295,8 +295,7 @@ void api_video_init(int mode)
         video_record_init(front, back, cif);
     }
 
-    if (parameter_get_collision_level() != 0) {
-	printf("czy: video_record_start_cache\n");
+    if (parameter_get_collision_level() != 0) { //collision_level = 0
         video_record_start_cache(COLLISION_CACHE_DURATION);
 	}
 }
@@ -693,7 +692,8 @@ void api_adas_deinit(void)
 
 void api_adas_set_wh(int width, int height)
 {
-#ifdef USE_DISP_TS
+#ifdef USE_DISP_TS //not defined
+	printf("czy: api_adas_set_wh\n");
     AdasSetWH(width, height);
 #endif
 }
@@ -1035,14 +1035,13 @@ void api_poweron_init(fun_cb cb)
 #ifdef DEBUG //DEBUG is defined
     /* if /tmp/RV_USB_STATE_MASK_DEBUG is exist, do not care USB event */
     gdb_usb_debug = !access("/tmp/RV_USB_STATE_MASK_DEBUG", F_OK);
-	printf("czy: gdb_usb_debug = %d\n", gdb_usb_debug);
 #endif
-    if (!gdb_usb_debug) //gdb_usb_debug defaule value 0
+    if (!gdb_usb_debug) //gdb_usb_debug = 0
         android_usb_init();
     parameter_init();
-    video_record_init_lock(); //must before uevent init
+    video_record_init_lock(); //must before uevent init  ; init notelock
 
-    /* create a link list for ui msg dispatch */
+    /* create a link list for ui msg dispatch */ //dispatch 调度
     if (init_list() && cb)
         reg_entry(cb);
 
@@ -1054,33 +1053,29 @@ void api_poweron_init(fun_cb cb)
     uevent_monitor_run();
 
     REC_RegEventCallback(record_event_callback);
-#ifdef USE_ADAS
+#ifdef USE_ADAS //defined
     AdasEventRegCallback(adas_event_callback);
 #endif
-	//mark by czy
     set_video_init_complete_cb(notify_videos_inited);
-	//end mark czy
     sd_reg_event_callback(sd_event_callback);
     hdmi_reg_event_callback(hdmi_event_callback);
     cvbsout_reg_event_callback(cvbsout_event_callback);
-	//mark by czy
     camera_reg_event_callback(camere_event_callback);
-	//end mark czy
     USER_RegEventCallback(user_event_callback);
     VIDEOPLAY_RegEventCallback(videoplay_event_callback);
     fs_msg_file_reg_callback(fsfile_event_callbak);
 
-#ifdef _PCBA_SERVICE_
+#ifdef _PCBA_SERVICE_ //not defined
     pcba_service_start();
 #else
-    if (parameter_get_wifi_en() == 1)
+    if (parameter_get_wifi_en() == 1)// wifi_en = 0
         wifi_management_start();
 #endif
-    if (!gdb_usb_debug && parameter_get_video_usb() == USB_MODE_RNDIS)
+    if (!gdb_usb_debug && parameter_get_video_usb() == USB_MODE_RNDIS) //USB_MODE_UVC
         rndis_management_start();
-	//mark by czy
+
     api_uvc_init(); //set usb idproduct to uvc
-	//end mark czy
+
     /*
      * If file size have been changed, need call the callball to nofity fs_manage
      * to change storage policy. Such as recordtime, resolution,
@@ -1089,14 +1084,14 @@ void api_poweron_init(fun_cb cb)
     storage_setting_reg_event_callback(storage_setting_callback);
     storage_setting_event_callback(0, NULL, NULL);
 
-#ifdef MSG_FWK
+#ifdef MSG_FWK //not defined
     rk_fwk_glue_init();
     rk_fwk_controller_init();
 #endif
-#ifdef PROTOCOL_GB28181
+#ifdef PROTOCOL_GB28181 //not defined
     protocol_rk_gb28181_init();
 #endif
-#ifdef PROTOCOL_IOTC
+#ifdef PROTOCOL_IOTC //not defined
     protocol_rk_iotc_init();
 #endif
 }

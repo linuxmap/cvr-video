@@ -211,6 +211,7 @@ static void set_uvc_window(struct uvc_window* win, int num, bool* pos, int type)
 
     pthread_mutex_lock(&uvc_process_lock);
     while (uvc_process) {
+	printf("czy: uvc_process not null\n");
         cur = uvc_process;
         if (cur) {
             delete_uvc_process_node(cur);
@@ -219,6 +220,7 @@ static void set_uvc_window(struct uvc_window* win, int num, bool* pos, int type)
         }
     }
     if (!uvc_process) {
+	printf("czy: uvc process is null\n");
         uvc_process_run = false;
         uvc_window = NULL;
         uvc_window_num = 0;
@@ -226,9 +228,11 @@ static void set_uvc_window(struct uvc_window* win, int num, bool* pos, int type)
     }
     pthread_mutex_unlock(&uvc_process_lock);
 
-    if (!uvc_process_run)
+    if (!uvc_process_run) {
+	printf("czy: uvc_process not run\n");
         uvc_process_exit();
 
+	}
     pthread_mutex_lock(&uvc_process_lock);
     uvc_window = win;
     uvc_window_num = num;
@@ -236,6 +240,8 @@ static void set_uvc_window(struct uvc_window* win, int num, bool* pos, int type)
     pthread_mutex_unlock(&uvc_process_lock);
 
     video_record_set_uvc_position(type);
+	printf("czy: set uvc window finish\n");
+	printf("czy: **************************\n");
 }
 
 static int uvc_get_the_window(int position, struct uvc_window* win)

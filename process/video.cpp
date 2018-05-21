@@ -974,20 +974,20 @@ static int video_record_query_businfo(struct Video* video, int id)
     struct v4l2_capability cap;
 
 #if USE_USB_WEBCAM
-	printf("czy: uvc_user_video_id = %d\n", uvc_get_user_video_id());
-    if (id == uvc_get_user_video_id())
+    if (id == uvc_get_user_video_id()) //uvc_get_user_video_id = -1
         return -1;
 #endif
 
     snprintf(dev, sizeof(dev), "/dev/video%d", id);
+	printf("czy: dev = %s \n", dev);
     fd = open(dev, O_RDWR);
     if (fd <= 0) {
-        // printf("open %s failed\n",dev);
+         printf("open %s failed\n",dev);
         return -1;
     }
 
     if (ioctl(fd, VIDIOC_QUERYCAP, &cap)) {
-        // printf("%s VIDIOC_QUERYCAP failed!\n",dev);
+         printf("%s VIDIOC_QUERYCAP failed!\n",dev);
         close(fd);
         return -1;
     }
@@ -1015,7 +1015,7 @@ static inline bool video_record_isp_have_added(void)
         }
         video = video->next;
     }
-	printf("czy: isp have added\n");
+	printf("czy: isp have added = %d\n",ret);
     return ret;
 }
 
@@ -1081,7 +1081,7 @@ static void stop_record(struct Video* vnode)
 static int video_get_resolution(struct Video* video)
 {
     size_t i = 0, j = 0, k = 0;
-#if USE_1440P_CAMERA
+#if USE_1440P_CAMERA // USE_1440P_CAMERA = 0
     struct video_param isp[2] = { UI_FRAME_1440P, UI_FRAME_1080P };
 #else
     struct video_param isp[2] = { UI_FRAME_1080P, UI_FRAME_720P };
@@ -1155,7 +1155,7 @@ extern "C" int video_record_addvideo(int id,
 	//end add czy
     pthread_rwlock_wrlock(&notelock);
 
-    if (check_record_init && !record_init_flag) {
+    if (check_record_init && !record_init_flag) { //check_record_init = 0 , record_init_flag = 0
         ret = -1;
         goto addvideo_ret;
     }
@@ -1178,8 +1178,7 @@ extern "C" int video_record_addvideo(int id,
     video->pthread_run = 1;
     video->photo.state = PHOTO_END;
 
-	printf("czy: cam_num = %d \n", parameter_get_cam_num());
-    if (parameter_get_cam_num() > 1) {
+    if (parameter_get_cam_num() > 1) { //cam_num = 5
         if (video_record_query_businfo(video, id))
             goto addvideo_exit;
     } else {
@@ -1197,7 +1196,7 @@ extern "C" int video_record_addvideo(int id,
 #ifdef USE_CIF_CAMERA //defined
         video->type = VIDEO_TYPE_CIF;
 
-#ifdef _PCBA_SERVICE_
+#ifdef _PCBA_SERVICE_ //not defined
         printf("benjo.lei : cif_type_alloc_bit = %x\n", (int)cif_type_alloc_bit);
         for (i = 0; i < 4; i++) {
             if (((cif_type_alloc_bit >> i) & 0x01) == 0) {
@@ -1244,7 +1243,7 @@ extern "C" int video_record_addvideo(int id,
         video->front = false;
     }
 
-    if (!video_check_abmode(video))
+    if (!video_check_abmode(video))//video_check_abmode(video) = 1
         goto addvideo_exit;
 
     video->hal = new hal();
@@ -1295,7 +1294,7 @@ extern "C" int video_record_addvideo(int id,
         goto addvideo_exit;
     }
 
-#ifdef SDV
+#ifdef SDV //not define
     if (is_record_mode && video->type == VIDEO_TYPE_ISP && with_mp) {
         video->output_width = width;
         video->output_height = height;
@@ -1308,12 +1307,12 @@ extern "C" int video_record_addvideo(int id,
     video->output_height = video->height;
 #endif
 
-#if MAIN_APP_NEED_DOWNSCALE_STREAM
+#if MAIN_APP_NEED_DOWNSCALE_STREAM //not define
     if (video->output_height > 1440)
         video_isp_set_enc_scale(video, true);
 #endif
 
-#ifndef USE_DISP_TS
+#ifndef USE_DISP_TS //defined
     if (video_ts_init(video))
         goto addvideo_exit;
 #endif
@@ -1325,7 +1324,7 @@ extern "C" int video_record_addvideo(int id,
     video_record_addnode(video);
     set_record_time_cb();
 
-#ifdef _PCBA_SERVICE_
+#ifdef _PCBA_SERVICE_ //not define
     memset(&video->pcba_ion, 0, sizeof(video->pcba_ion));
     video->pcba_ion.client = -1;
     video->pcba_ion.fd = -1;
@@ -1365,7 +1364,7 @@ addvideo_exit:
     if (video) {
         if (is_record_mode)
             video_encode_exit(video);
-#ifndef USE_DISP_TS
+#ifndef USE_DISP_TS //defined
         video_ts_deinit(video);
 #endif
         if (video->hal) {
@@ -1462,9 +1461,10 @@ extern "C" void video_record_init(struct video_param* front,
 #endif
 
     for (int i = 0, j = 0; i < MAX_VIDEO_DEVICE && j < parameter_get_cam_num(); i++)
-        if (!video_record_addvideo(i, front, back, cif, 0, 0))
+        if (!video_record_addvideo(i, front, back, cif, 0, 0)) {
             j++;
-
+	printf("czy: j = %d\n",j);
+	}
     pthread_rwlock_wrlock(&notelock);
     record_init_flag = true;
     pthread_rwlock_unlock(&notelock);

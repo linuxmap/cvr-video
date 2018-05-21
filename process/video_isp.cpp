@@ -684,6 +684,7 @@ int isp_video_path_sp(struct Video* video)
 
 int isp_video_path_mp(struct Video* video)
 {
+	printf("czy: isp video path mp\n");
     video->hal->mpath = video->hal->dev->getPath(CamHwItf::MP);
     if (video->hal->mpath.get() == NULL) {
         printf("%s:path doesn't exist!\n", __func__);
